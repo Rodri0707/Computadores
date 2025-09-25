@@ -69,11 +69,7 @@ r1: Regs port map (
 
 r2: ALURis port map (
 	Op1 <=salida_reg,
-	Op2 <= resize(MemProgData(31 downto 20),32),
-	ALUControl <="000",
-	Res <= salida_alu,
-	Z <=open
-);
+	Op2 <= resize(MemProgData(31 downto 20),32)
 
 
 	-- Instancia de RegRISCV
