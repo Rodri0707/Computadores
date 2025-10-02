@@ -1,0 +1,104 @@
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+-- Asignatura: Estructura de Computadores. GII. 2º curso.
+-- Fichero: MicroSuma.vhd
+-- Descripción: Micro RISC-V muy simplificado, sólo suma con dato inmediato
+-- Fichero de apoyo para: Práctica: 2. Ejercicio: 3
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity MicroSuma is
+	port (
+		Clk : in std_logic; -- Reloj
+		NRst : in std_logic; -- Reset activo a nivel bajo
+		MemProgAddr : out unsigned(31 downto 0); -- Dirección para la memoria de programa
+		MemProgData : in unsigned(31 downto 0) -- Código de operación
+	);
+	end MicroSuma;
+
+architecture Practica of MicroSuma is
+
+component RegsRISCV port (
+		Clk : in std_logic; -- Reloj
+		NRst : in std_logic; -- Reset asíncrono a nivel bajo
+		A1 : in unsigned(4 downto 0); -- Dirección para el puerto RD1
+		RD1 : out signed(31 downto 0); -- Dato del puerto RD1
+		A2 : in unsigned(4 downto 0); -- Dirección para el puerto RD2
+		RD2 : out signed(31 downto 0); -- Dato del puerto RD2
+		A3 : in unsigned(4 downto 0); -- Dirección para el puerto WD3
+		WD3 : in signed(31 downto 0); -- Dato de entrada WD3
+		WE3 : in std_logic -- Habilitación del banco de registros
+);
+end component;
+
+component ALURISCV port (
+		Op1 : in signed(31 downto 0);
+		Op2 : in signed(31 downto 0);
+		ALUControl : in std_logic_vector (2 downto 0);
+		Res : out signed(31 downto 0);
+		Z : out std_logic
+		);
+end component;
+
+component pc port (
+		Clk : in std_logic; -- Reloj
+		Entrada : in unsigned(31 downto 0);
+		Salida : out unsigned(31 downto 0)
+		);
+end component;
+
+signal salida_reg : signed(31 downto 0);
+signal salida_alu : signed(31 downto 0);
+signal salida_inutil : signed(31 downto 0);
+signal entrada_pc : signed(31 downto 0);
+
+	-- Declaración de RegsRISCV
+	
+	-- Declaración de ALURISCV
+	
+	-- Declaración de señales auxiliares
+
+begin
+
+r1: RegsRISCV port map (
+	Clk => Clk,
+	NRst => NRst,
+	A1 => MemProgData(19 downto 15),
+	RD1 => salida_reg, 
+	A2 =>"00000",
+	RD2 => salida_inutil,
+	A3 => MemProgData(11 downto 7),
+	WD3 => salida_alu,
+	WE3 => '1'
+);
+
+r2: ALURISCV port map (
+	Op1=>salida_reg,
+	Op2 => resize(signed(MemProgData(31 downto 20)),32),
+	ALUControl=>"000",
+	Res => salida_alu,
+	Z => open
+);
+
+r3: pc port map (
+	Clk => Clk, 
+	Salida => MemProgAddr,
+	Entrada => entrada_pc
+);
+
+entrada_pc <= MemProgAddr;
+	-- Instancia de RegRISCV
+	
+	-- Instancia de ALURISCV
+	
+	-- Extensión de signo
+	
+	-- Ruta del PC
+
+
+end Practica;
+
